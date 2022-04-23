@@ -1,0 +1,11 @@
+---
+- name: Install Apache and Pre-configurated
+  hosts: all
+  become: yes
+
+  roles:
+     - { role: deploy_apache, when: ansible_system == "Linux" }
+  
+ 
+
+  

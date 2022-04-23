@@ -1,2 +1,36 @@
 ---
 # tasks file for deploy_apache
+    - block: #RedHat#   
+      - name: Install Apache fot RedHat
+        yum: name=httpd state=latest
+
+#    - name: Copy HomePage to WebServer
+#      copy: src={{ src_file }} dest={{ dst_file }} mode=0555
+#      notify: Restart Apache RedHat
+      - name: Start WebServer
+        service: name=httpd state=started enabled=yes
+    
+      - name: Add for Firewalld
+        shell: firewall-cmd --permanent --add-service=http && firewall-cmd --permanent --add-service=https
+    
+      when: ansible_os_family == 'RedHat'
+
+    - block: #Debian#
+
+       - name: Install Apache for Debian
+         yum: name=apache2 state=latest
+
+#    - name: Copy HomePage to WebServer
+#      copy: src={{ src_file }} dest={{ dst_file }} mode=0555
+#      notify: Restart Apache Debian
+
+       - name: Start WebServer
+         service: name=apache2 state=started enabled=yes
+    
+      when: ansible_os_family == 'Debian'
+
+    - name: Generate index.html file
+      template: src=index.j2 dest={{ dest_folder }}/index.html mode=0555
+      notify: 
+        - Restart Apache RedHat
+        - Restart Apache Debian
